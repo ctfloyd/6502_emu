@@ -3,6 +3,31 @@
 #include "../src/instruction.h"
 #include "stdbool.h"
 
+#define IMM_FLAGS_CHECK(val) {                      \
+    if (val > 0) {                                  \
+        cpu->flags.zero = true;                     \
+        cpu->flags.negative = true;                 \
+                                                    \
+        cpu_run(cpu, 1);                            \
+        check(cpu->flags.zero == false);            \
+        check(cpu->flags.negative == false);        \
+    } else if (val < 0) {                           \
+        cpu->flags.zero = true;                     \
+        cpu->flags.negative = false;                \
+                                                    \
+        cpu_run(cpu, 1);                            \
+        check(cpu->flags.zero == false);            \
+        check(cpu->flags.negative == true);         \
+    } else {                                        \
+        cpu->flags.zero = false;                    \
+        cpu->flags.negative = true;                 \
+                                                    \
+        cpu_run(cpu, 1);                            \
+        check(cpu->flags.zero == true);             \
+        check(cpu->flags.negative == false);        \
+    } \
+}
+
 spec("CPU") {
 
     struct CPU* cpu;
@@ -62,32 +87,17 @@ spec("CPU") {
 
                 it("should set flags correctly for positive imm value") {
                     cpu->memory.data[1] = POS_SENTINEL;
-                    cpu->flags.zero = true;
-                    cpu->flags.negative = true;
-
-                    cpu_run(cpu, 1);
-                    check(cpu->flags.zero == false);
-                    check(cpu->flags.negative == false);
+                    IMM_FLAGS_CHECK(POS_SENTINEL);
                 }
 
                 it("should set flags correctly for negative imm value") {
                     cpu->memory.data[1] = NEG_SENTINEL;
-                    cpu->flags.zero = true;
-                    cpu->flags.negative = false;
-
-                    cpu_run(cpu, 1);
-                    check(cpu->flags.zero == false);
-                    check(cpu->flags.negative == true);
+                    IMM_FLAGS_CHECK(NEG_SENTINEL);
                 }
 
                 it("should set flags correctly for zero imm value") {
                     cpu->memory.data[1] = 0;
-                    cpu->flags.zero = false;
-                    cpu->flags.negative = true;
-
-                    cpu_run(cpu, 1);
-                    check(cpu->flags.zero == true);
-                    check(cpu->flags.negative == false);
+                    IMM_FLAGS_CHECK(0);
                 }
 
                 it("should take two cpu cycles to run") {
