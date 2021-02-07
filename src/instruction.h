@@ -7,10 +7,7 @@ enum Instruction {
     LDA_IMM = 0xA9
 };
 
-static inline int lda_imm(CPU* cpu) {
-    // Sets zero and negative flags
-    Byte accumulator_byte = cpu_load_next_byte(cpu);
-    cpu->accumulator = accumulator_byte;
+void set_lda_flags(CPU* cpu, Byte accumulator_byte) {
     if(accumulator_byte == 0) {
         cpu->flags.zero = true;
     } else {
@@ -22,7 +19,13 @@ static inline int lda_imm(CPU* cpu) {
     } else {
         cpu->flags.negative = false;
     }
+}
 
+static inline int lda_imm(CPU* cpu) {
+    // Sets zero and negative flags
+    Byte accumulator_byte = cpu_load_next_byte(cpu);
+    cpu->accumulator = accumulator_byte;
+    set_lda_flags(cpu, accumulator_byte);
     return 2;
 }
 
