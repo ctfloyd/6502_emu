@@ -4,6 +4,7 @@
 #include "cpu.h"
 #include "instruction.h"
 
+
 CPU* cpu_create(int memory_size) {
     CPU* cpu = malloc(sizeof(CPU));
 	Memory memory = { malloc(memory_size), memory_size };
@@ -59,6 +60,13 @@ Byte cpu_load_next_byte(CPU* cpu) {
     return cpu->memory.data[cpu->program_counter++];
 }
 
+#define CYCLE_COUNT(instr) {  \
+							  int c = instr;\
+							  cycles_completed += c;\
+							  cycles -= c;\
+							  break;\
+						   }
+
 int cpu_run(CPU* cpu, int cycles) {
 	int cycles_completed = 0;
 
@@ -67,11 +75,7 @@ int cpu_run(CPU* cpu, int cycles) {
         Byte next_byte = cpu_load_next_byte(cpu);
 
         switch(next_byte) {
-            case LDA_IMM:;
-				int c = lda_imm(cpu);
-				cycles_completed += c;
-				cycles -= c;
-				break;
+            case LDA_IMM: CYCLE_COUNT(lda_imm(cpu));
 			default:
 				cycles--;
         }
