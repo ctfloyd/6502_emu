@@ -105,6 +105,42 @@ spec("CPU") {
                     check(cycles == 2);
                 }
             }
+
+            describe("ZERO") {
+                static int POS_SENTINEL = 40;
+                static int NEG_SENTINEL = -40;
+
+                before_each() {
+                    cpu->memory.data[0] = LDA_ZERO;
+                    cpu->memory.data[1] = 32;
+                }
+
+                it("should load the value at specified address into accumulator") {
+                    cpu->memory.data[32] = POS_SENTINEL;
+                    cpu_run(cpu, 1);
+                    check(cpu->accumulator == POS_SENTINEL);
+                }
+
+                it("should set flags correctly for positive sentinel") {
+                    cpu->memory.data[32] = POS_SENTINEL;
+                    IMM_FLAGS_CHECK(POS_SENTINEL);
+                }
+
+                it("should set flags correctly for zero sentinel") {
+                    cpu->memory.data[32] = 0;
+                    IMM_FLAGS_CHECK(0);
+                }
+
+                it("should set flags correctly for negative sentinel") {
+                    cpu->memory.data[32] = NEG_SENTINEL;
+                    IMM_FLAGS_CHECK(NEG_SENTINEL);
+                }
+
+                it("should take three cpu cycles to run") {
+                    int cycles = cpu_run(cpu, 10);
+                    check(cycles == 3);
+                }
+            }
         }
     }
 }

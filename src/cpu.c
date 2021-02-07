@@ -76,6 +76,7 @@ int cpu_run(CPU* cpu, int cycles) {
 
         switch(next_byte) {
             case LDA_IMM: CYCLE_COUNT(lda_imm(cpu));
+			case LDA_ZERO: CYCLE_COUNT(lda_zero(cpu));
 			default:
 				cycles--;
         }
