@@ -89,6 +89,11 @@ spec("CPU") {
                     check(cpu->flags.zero == true);
                     check(cpu->flags.negative == false);
                 }
+
+                it("should take two cpu cycles to run") {
+                    int cycles = cpu_run(cpu, 10);
+                    check(cycles == 2);
+                }
             }
         }
     }
