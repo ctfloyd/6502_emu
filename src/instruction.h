@@ -7,7 +7,7 @@ enum Instruction {
     LDA_IMM = 0xA9
 };
 
-static inline void lda_imm(CPU* cpu) {
+static inline int lda_imm(CPU* cpu) {
     // Sets zero and negative flags
     Byte accumulator_byte = cpu_load_next_byte(cpu);
     cpu->accumulator = accumulator_byte;
@@ -22,6 +22,8 @@ static inline void lda_imm(CPU* cpu) {
     } else {
         cpu->flags.negative = false;
     }
+
+    return 2;
 }
 
 #endif

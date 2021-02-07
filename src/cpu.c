@@ -59,18 +59,23 @@ Byte cpu_load_next_byte(CPU* cpu) {
     return cpu->memory.data[cpu->program_counter++];
 }
 
-void cpu_run(CPU* cpu, int cycles) {
+int cpu_run(CPU* cpu, int cycles) {
+	int cycles_completed = 0;
+
     while(cycles > 0) {
 
         Byte next_byte = cpu_load_next_byte(cpu);
 
         switch(next_byte) {
-            case LDA_IMM: lda_imm(cpu); break;
-			
+            case LDA_IMM:;
+				int c = lda_imm(cpu);
+				cycles_completed += c;
+				cycles -= c;
+				break;
 			default:
-				continue;
+				cycles--;
         }
-
-        cycles--;
     }
+
+	return cycles_completed;
 }

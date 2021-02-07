@@ -29,6 +29,6 @@ CPU* cpu_create(int);
 void cpu_dump_state(CPU*);
 Byte cpu_load_next_byte(CPU*);
 void cpu_reset(CPU*);
-void cpu_run(CPU*, int);
+int cpu_run(CPU*, int);
 
 #endif
