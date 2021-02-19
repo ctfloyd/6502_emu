@@ -8,7 +8,8 @@
 enum Instruction {
     LDA_IMM = 0xA9,
     LDA_ZERO = 0xA5,
-    LDA_ZERO_X = 0xB5
+    LDA_ZERO_X = 0xB5,
+    LDA_ABS = 0xAD
 };
 
 static inline int lda_imm(CPU* cpu) {
@@ -33,6 +34,14 @@ static inline int lda_zero_x(CPU* cpu) {
 
     // The size of Byte is u8, so this wraps at 255
     Byte effective_addr = zero_page_addr + offset;
+    Byte accumulator_byte = cpu->memory.data[effective_addr];
+    cpu->accumulator = accumulator_byte;
+    flags_set_nz(&cpu->flags, accumulator_byte);
+    return 4;
+}
+
+static inline int lda_absolute(CPU* cpu) {
+    Word effective_addr = cpu_load_next_word(cpu);
     Byte accumulator_byte = cpu->memory.data[effective_addr];
     cpu->accumulator = accumulator_byte;
     flags_set_nz(&cpu->flags, accumulator_byte);

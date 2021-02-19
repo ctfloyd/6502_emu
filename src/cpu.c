@@ -66,6 +66,14 @@ Byte cpu_load_next_byte(CPU* cpu) {
     return cpu->memory.data[cpu->program_counter++];
 }
 
+// Loads the next byte (Little Endian)
+Word cpu_load_next_word(CPU* cpu) {
+	Byte lo = cpu_load_next_byte(cpu);
+	Byte hi = cpu_load_next_byte(cpu);
+	Word word = (hi << 8) | lo;
+	return word;
+}
+
 #define CYCLE_COUNT(instr) {  \
 							  int c = instr;\
 							  cycles_completed += c;\
@@ -84,6 +92,7 @@ int cpu_run(CPU* cpu, int cycles) {
             case LDA_IMM: CYCLE_COUNT(lda_imm(cpu));
 			case LDA_ZERO: CYCLE_COUNT(lda_zero(cpu));
 			case LDA_ZERO_X: CYCLE_COUNT(lda_zero_x(cpu));
+			case LDA_ABS: CYCLE_COUNT(lda_absolute(cpu));
 			default:
 				cycles--;
         }

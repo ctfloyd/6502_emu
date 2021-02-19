@@ -21,6 +21,7 @@ CPU* cpu_create(int);
 void cpu_destroy(CPU*);
 void cpu_dump_state(CPU*);
 Byte cpu_load_next_byte(CPU*);
+Word cpu_load_next_word(CPU*);
 void cpu_reset(CPU*);
 int cpu_run(CPU*, int);
 
