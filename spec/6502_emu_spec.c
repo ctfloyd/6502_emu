@@ -3,7 +3,7 @@
 #include "../src/instruction.h"
 #include "stdbool.h"
 
-#define IMM_FLAGS_CHECK(val) {                      \
+#define NZ_FLAGS_CHECK(val) {                      \
     if (val > 0) {                                  \
         cpu->flags.zero = true;                     \
         cpu->flags.negative = true;                 \
@@ -87,17 +87,17 @@ spec("CPU") {
 
                 it("should set flags correctly for positive imm value") {
                     cpu->memory.data[1] = POS_SENTINEL;
-                    IMM_FLAGS_CHECK(POS_SENTINEL);
+                    NZ_FLAGS_CHECK(POS_SENTINEL);
                 }
 
                 it("should set flags correctly for negative imm value") {
                     cpu->memory.data[1] = NEG_SENTINEL;
-                    IMM_FLAGS_CHECK(NEG_SENTINEL);
+                    NZ_FLAGS_CHECK(NEG_SENTINEL);
                 }
 
                 it("should set flags correctly for zero imm value") {
                     cpu->memory.data[1] = 0;
-                    IMM_FLAGS_CHECK(0);
+                    NZ_FLAGS_CHECK(0);
                 }
 
                 it("should take two cpu cycles to run") {
@@ -123,17 +123,17 @@ spec("CPU") {
 
                 it("should set flags correctly for positive sentinel") {
                     cpu->memory.data[32] = POS_SENTINEL;
-                    IMM_FLAGS_CHECK(POS_SENTINEL);
+                    NZ_FLAGS_CHECK(POS_SENTINEL);
                 }
 
                 it("should set flags correctly for zero sentinel") {
                     cpu->memory.data[32] = 0;
-                    IMM_FLAGS_CHECK(0);
+                    NZ_FLAGS_CHECK(0);
                 }
 
                 it("should set flags correctly for negative sentinel") {
                     cpu->memory.data[32] = NEG_SENTINEL;
-                    IMM_FLAGS_CHECK(NEG_SENTINEL);
+                    NZ_FLAGS_CHECK(NEG_SENTINEL);
                 }
 
                 it("should take three cpu cycles to run") {
