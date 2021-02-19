@@ -1,19 +1,11 @@
-#include <stdbool.h>
+
 #include "types.h"
 #include "6502_memory.h"
+#include "flags.h"
+#include <stdbool.h>
 
 #ifndef CPU_H
 #define CPU_H
-
-struct Flags {
-	bool carry: 1;
-	bool zero: 1;
-	bool interrupt_disable: 1;
-	bool decimal_mode: 1;
-	bool break_command: 1;
-	bool overflow: 1;
-	bool negative: 1;
-};
 
 typedef struct CPU {
 	Word program_counter;
@@ -21,7 +13,7 @@ typedef struct CPU {
 	Byte accumulator;
 	Byte idx_reg_x;
 	Byte idx_reg_y;
-	struct Flags flags;
+	Flags flags;
     Memory memory;
 } CPU;
 

@@ -6,8 +6,11 @@ all: build/6502_emu.o build/cpu.o
 build/6502_emu.o: src/6502_emu.c build/cpu.o
 	gcc -c ${CFLAGS} src/6502_emu.c -o build/6502_emu.o
 
-build/cpu.o: src/cpu.c src/cpu.h src/types.h build/memory.gch build/instruction.gch
+build/cpu.o: src/cpu.c src/cpu.h src/types.h build/memory.gch build/instruction.gch build/flags.gch
 	gcc -c ${CFLAGS} src/cpu.c -o build/cpu.o
+
+build/flags.gch: src/flags.h
+	gcc ${CFLAGS} src/flags.h -o build/flags.gch
 
 build/memory.gch: src/6502_memory.h
 	gcc ${CFLAGS} src/6502_memory.h -o build/memory.gch
