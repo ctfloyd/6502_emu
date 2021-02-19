@@ -49,13 +49,17 @@ static inline int lda_absolute(CPU* cpu) {
     return 4;
 }
 
-static inline int lda_absolute_x(CPU* cpu) {
+static inline int lda_absolute_with_offset(CPU* cpu, Byte offset) {
     Word base_addr = cpu_load_next_word(cpu);
-    Word effective_addr = base_addr + cpu->idx_reg_x;
+    Word effective_addr = base_addr + offset;
     Byte accumulator_byte = cpu->memory.data[effective_addr];
     cpu->accumulator = accumulator_byte;
     flags_set_nz(&cpu->flags, accumulator_byte);
     return 4;
+}
+
+static inline int lda_absolute_x(CPU* cpu) {
+    return lda_absolute_with_offset(cpu, cpu->idx_reg_x);
 }
 
 #endif
