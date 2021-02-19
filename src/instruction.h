@@ -10,7 +10,8 @@ enum Instruction {
     LDA_ZERO = 0xA5,
     LDA_ZERO_X = 0xB5,
     LDA_ABS = 0xAD,
-    LDA_ABS_X = 0xBD
+    LDA_ABS_X = 0xBD,
+    LDA_ABS_Y = 0xB9
 };
 
 static inline Byte load_zero_page_value(CPU* cpu, Byte offset) {
@@ -55,8 +56,17 @@ static inline int lda_absolute(CPU* cpu) {
     return 4;
 }
 
+/* TODO (ctfloyd) Check (and incrase cycle count) if load crosses page boundary */
 static inline int lda_absolute_x(CPU* cpu) {
     Byte accumulator_byte = load_absolute_value(cpu, cpu->idx_reg_x);
+    cpu->accumulator = accumulator_byte;
+    flags_set_nz(&cpu->flags, accumulator_byte);
+    return 4;
+}
+
+/* TODO (ctfloyd) Check (and incrase cycle count) if load crosses page boundary */
+static inline int lda_absolute_y(CPU* cpu) {
+    Byte accumulator_byte = load_absolute_value(cpu, cpu->idx_reg_y);
     cpu->accumulator = accumulator_byte;
     flags_set_nz(&cpu->flags, accumulator_byte);
     return 4;
