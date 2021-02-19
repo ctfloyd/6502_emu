@@ -32,7 +32,7 @@
 spec("CPU") {
 
     static CPU* cpu = NULL;
-    static int MEMORY_SIZE_IN_BYTES = 32;
+    static int MEMORY_SIZE_IN_BYTES = 8 * 1024;
 
     before_each() {
         if(cpu != NULL) {
@@ -40,7 +40,6 @@ spec("CPU") {
         }
 
         cpu = cpu_create(MEMORY_SIZE_IN_BYTES);
-        cpu_reset(cpu);
     }
 
     after() {
@@ -68,13 +67,17 @@ spec("CPU") {
 
         it("should zero out memory when reset") {
             cpu_reset(cpu);
-            for(u8 i = 0; i < MEMORY_SIZE_IN_BYTES; i++) {
+            for(size_t i = 0; i < MEMORY_SIZE_IN_BYTES; i++) {
                 check(cpu->memory.data[i] == 0);
             }
         }
     }
 
     describe("instructions") {
+
+        before_each() {
+            cpu_reset(cpu);
+        }
 
         describe("LDA") {
             describe("IMM") {
@@ -146,6 +149,54 @@ spec("CPU") {
                 it("should take three cpu cycles to run") {
                     int cycles = cpu_run(cpu, 10);
                     check(cycles == 3);
+                }
+            }
+
+            describe("ZERO, X") {
+                static int POS_SENTINEL = 40;
+                static int NEG_SENTINEL = -40;
+                static int DESTINATION = 128;
+
+                before_each() {
+                    cpu->memory.data[0] = LDA_ZERO_X;
+                    cpu->memory.data[1] = 96;
+                    cpu->idx_reg_x = 32;
+                }
+
+                it("should load the value at the specified address and (x) offset into accumulator") {
+                    cpu->memory.data[DESTINATION] = POS_SENTINEL;
+                    cpu_run(cpu, 1);
+                    check(cpu->accumulator == POS_SENTINEL);
+                }
+
+                it("should set flags correctly for positive sentinel") {
+                    cpu->memory.data[DESTINATION] = POS_SENTINEL;
+                    NZ_FLAGS_CHECK(POS_SENTINEL);
+                }
+
+                it("should set flags correctly for zero sentinel") {
+                    cpu->memory.data[DESTINATION] = 0;
+                    NZ_FLAGS_CHECK(0);
+                }
+
+                it("should set flags correctly for negative sentinel") {
+                    cpu->memory.data[DESTINATION] = NEG_SENTINEL;
+                    NZ_FLAGS_CHECK(NEG_SENTINEL);
+                }
+
+                it("should wrap around the page boundary") {
+                    int FAR_OFFSET = 200;
+                    int PAGE_SIZE = 0xFF;
+                    cpu->memory.data[1] = FAR_OFFSET;
+                    cpu->idx_reg_x = PAGE_SIZE - FAR_OFFSET + DESTINATION + 1;
+                    cpu->memory.data[DESTINATION] = NEG_SENTINEL;
+                    cpu_run(cpu, 1);
+                    check((s8)(cpu->accumulator) == NEG_SENTINEL);
+                }
+
+                it("should take four cpu cycles to run") {
+                    int cycles = cpu_run(cpu, 10);
+                    check(cycles == 4);
                 }
             }
         }
