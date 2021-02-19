@@ -1,3 +1,4 @@
 .vscode
 build/
 emulator
+test_cpu_spec

@@ -2,6 +2,7 @@
 #include "../src/cpu.c"
 #include "../src/instruction.h"
 #include "stdbool.h"
+#include <stdio.h>
 
 #define NZ_FLAGS_CHECK(val) {                      \
     if (val > 0) {                                  \
@@ -30,14 +31,24 @@
 
 spec("CPU") {
 
-    struct CPU* cpu;
+    static CPU* cpu = NULL;
     static int MEMORY_SIZE_IN_BYTES = 32;
+
+    before_each() {
+        if(cpu != NULL) {
+            cpu_destroy(cpu);
+        }
+
+        cpu = cpu_create(MEMORY_SIZE_IN_BYTES);
+        cpu_reset(cpu);
+    }
+
+    after() {
+        cpu_destroy(cpu);
+    }
 
 
     describe("reset") {
-        before_each() {
-            cpu = cpu_create(MEMORY_SIZE_IN_BYTES);
-        }
 
         it("should contain complete zero'd registers/flags when reset") {
             cpu_reset(cpu);
@@ -64,10 +75,6 @@ spec("CPU") {
     }
 
     describe("instructions") {
-
-        before_each() {
-            cpu_reset(cpu);
-        }
 
         describe("LDA") {
             describe("IMM") {

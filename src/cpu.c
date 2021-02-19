@@ -13,6 +13,12 @@ CPU* cpu_create(int memory_size) {
     return cpu;
 }
 
+void cpu_destroy(CPU* cpu) {
+	free(cpu->memory.data);
+	free(cpu);
+	cpu = NULL;
+}
+
 void cpu_dump_state(CPU* cpu) {
     printf("\n******Registers******\n");
 	printf("PC: %d, SP: %d, A: %d\n X: %d,  Y: %d\n", 

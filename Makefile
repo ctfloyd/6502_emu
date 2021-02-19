@@ -21,5 +21,8 @@ build/instruction.gch: src/instruction.h
 test_cpu: spec/6502_emu_spec.c
 	gcc -g -o test_cpu_spec spec/6502_emu_spec.c && ./test_cpu_spec ; rm test_cpu_spec
 
+test_cpu_keep: spec/6502_emu_spec.c
+	gcc -g -o test_cpu_spec spec/6502_emu_spec.c && ./test_cpu_spec
+
 clean:
-	rm build/*
+	rm -rf build && mkdir build
