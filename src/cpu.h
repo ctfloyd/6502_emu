@@ -18,6 +18,7 @@ typedef struct CPU {
 } CPU;
 
 CPU* cpu_create(int);
+void cpu_destroy(CPU*);
 void cpu_dump_state(CPU*);
 Byte cpu_load_next_byte(CPU*);
 void cpu_reset(CPU*);
