@@ -239,6 +239,49 @@ spec("CPU") {
                     check(cycles == 4);
                 }
             }
+
+            describe("ABS, X") {
+                static int POS_SENTINEL = 40;
+                static int NEG_SENTINEL = -40;
+                static int OFFSET = 20; 
+                static int DESTINATION = 1024 + 20;
+
+                before_each() {
+                    cpu->memory.data[0] = LDA_ABS_X;
+
+                    // 1024 in little endian
+                    cpu->memory.data[1] = 0x00;
+                    cpu->memory.data[2] = 0x04;
+
+                    cpu->idx_reg_x = OFFSET;
+                }
+
+                it("should load the value at the specified address and (x) offset into accumulator") {
+                    cpu->memory.data[DESTINATION] = POS_SENTINEL;
+                    cpu_run(cpu, 1);
+                    check(cpu->accumulator == POS_SENTINEL);
+                }
+
+                it("should set flags correctly for positive sentinel") {
+                    cpu->memory.data[DESTINATION] = POS_SENTINEL;
+                    NZ_FLAGS_CHECK(POS_SENTINEL);
+                }
+
+                it("should set flags correctly for zero sentinel") {
+                    cpu->memory.data[DESTINATION] = 0;
+                    NZ_FLAGS_CHECK(0);
+                }
+
+                it("should set flags correctly for negative sentinel") {
+                    cpu->memory.data[DESTINATION] = NEG_SENTINEL;
+                    NZ_FLAGS_CHECK(NEG_SENTINEL);
+                }
+
+                it("should take four cpu cycles to run") {
+                    int cycles = cpu_run(cpu, 10);
+                    check(cycles == 4);
+                }
+            }
         }
     }
 }

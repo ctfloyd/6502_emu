@@ -9,7 +9,8 @@ enum Instruction {
     LDA_IMM = 0xA9,
     LDA_ZERO = 0xA5,
     LDA_ZERO_X = 0xB5,
-    LDA_ABS = 0xAD
+    LDA_ABS = 0xAD,
+    LDA_ABS_X = 0xBD
 };
 
 static inline int lda_imm(CPU* cpu) {
@@ -42,6 +43,15 @@ static inline int lda_zero_x(CPU* cpu) {
 
 static inline int lda_absolute(CPU* cpu) {
     Word effective_addr = cpu_load_next_word(cpu);
+    Byte accumulator_byte = cpu->memory.data[effective_addr];
+    cpu->accumulator = accumulator_byte;
+    flags_set_nz(&cpu->flags, accumulator_byte);
+    return 4;
+}
+
+static inline int lda_absolute_x(CPU* cpu) {
+    Word base_addr = cpu_load_next_word(cpu);
+    Word effective_addr = base_addr + cpu->idx_reg_x;
     Byte accumulator_byte = cpu->memory.data[effective_addr];
     cpu->accumulator = accumulator_byte;
     flags_set_nz(&cpu->flags, accumulator_byte);
