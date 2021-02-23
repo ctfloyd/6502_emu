@@ -21,7 +21,8 @@ enum Instruction {
     LDA_IND_X = 0xA1,
     LDA_IND_Y = 0xB1,
     LDX_IMM = 0xA2,
-    LDX_ZERO = 0xA6
+    LDX_ZERO = 0xA6,
+    LDX_ZERO_Y= 0xB6
 };
 
 static inline Byte load_zero_page_value(CPU* cpu, Byte offset) {
@@ -130,6 +131,13 @@ static inline int ldx_zero(CPU* cpu) {
     cpu->idx_reg_x = x_byte;
     flags_set_nz(&cpu->flags, x_byte);
     return 3;
+}
+
+static inline int ldX_zero_y(CPU* cpu) {
+    Byte x_byte = load_zero_page_value(cpu, cpu->idx_reg_y);
+    cpu->idx_reg_x = x_byte;
+    flags_set_nz(&cpu->flags, x_byte);
+    return 4;
 }
 
 #endif
