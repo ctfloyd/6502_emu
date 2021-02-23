@@ -5,6 +5,12 @@
 #ifndef INSTRUCTION_H
 #define INSTRUCTION_H
 
+/* 
+    NOTE (ctfloyd): I thought about abstracting the load_* instrtuctions into some load_register_* instructions.
+         However, with the current implementation this will not allow us to have fine grain cycle count
+         control on a situational basis.
+*/
+
 enum Instruction {
     LDA_IMM = 0xA9,
     LDA_ZERO = 0xA5,
@@ -13,7 +19,8 @@ enum Instruction {
     LDA_ABS_X = 0xBD,
     LDA_ABS_Y = 0xB9,
     LDA_IND_X = 0xA1,
-    LDA_IND_Y = 0xB1
+    LDA_IND_Y = 0xB1,
+    LDX_IMM = 0xA2
 };
 
 static inline Byte load_zero_page_value(CPU* cpu, Byte offset) {
@@ -108,6 +115,13 @@ static inline int lda_indirect_y(CPU* cpu) {
     cpu->accumulator = accumulator_byte;
     flags_set_nz(&cpu->flags, accumulator_byte);
     return 5;
+}
+
+static inline int ldx_imm(CPU* cpu) {
+    Byte x_byte = cpu_load_next_byte(cpu);
+    cpu->idx_reg_x = x_byte;
+    flags_set_nz(&cpu->flags, x_byte);
+    return 2;
 }
 
 #endif

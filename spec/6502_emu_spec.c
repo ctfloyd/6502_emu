@@ -74,6 +74,8 @@ spec("CPU") {
     }
 
     describe("instructions") {
+        static const int POS_SENTINEL = 40;
+        static const int NEG_SENTINEL = -40;
 
         before_each() {
             cpu_reset(cpu);
@@ -81,8 +83,6 @@ spec("CPU") {
 
         describe("LDA") {
             describe("IMM") {
-                static int POS_SENTINEL = 40;
-                static int NEG_SENTINEL = -40;
 
                 before_each() {
                     cpu->memory.data[0] = LDA_IMM;
@@ -117,9 +117,6 @@ spec("CPU") {
             }
 
             describe("ZERO") {
-                static int POS_SENTINEL = 40;
-                static int NEG_SENTINEL = -40;
-
                 before_each() {
                     cpu->memory.data[0] = LDA_ZERO;
                     cpu->memory.data[1] = 32;
@@ -153,8 +150,6 @@ spec("CPU") {
             }
 
             describe("ZERO, X") {
-                static int POS_SENTINEL = 40;
-                static int NEG_SENTINEL = -40;
                 static int DESTINATION = 128;
 
                 before_each() {
@@ -201,8 +196,6 @@ spec("CPU") {
             }
 
             describe("ABS") {
-                static int POS_SENTINEL = 40;
-                static int NEG_SENTINEL = -40;
                 static int DESTINATION = 1024;
 
                 before_each() {
@@ -241,8 +234,6 @@ spec("CPU") {
             }
 
             describe("ABS, X") {
-                static int POS_SENTINEL = 40;
-                static int NEG_SENTINEL = -40;
                 static int OFFSET = 20; 
                 static int DESTINATION = 1024 + 20;
 
@@ -284,8 +275,6 @@ spec("CPU") {
             }
 
             describe("ABS, Y") {
-                static int POS_SENTINEL = 40;
-                static int NEG_SENTINEL = -40;
                 static int OFFSET = 20; 
                 static int DESTINATION = 1024 + 20;
 
@@ -327,8 +316,6 @@ spec("CPU") {
             }
 
             describe("IND, X") {
-                static int POS_SENTINEL = 40;
-                static int NEG_SENTINEL = -40;
                 static int OFFSET = 40; 
                 static int DESTINATION = 128;
                 static int TABLE_PTR = 24;
@@ -368,8 +355,6 @@ spec("CPU") {
             }
 
             describe("IND, Y") {
-                static const int POS_SENTINEL = 40;
-                static const int NEG_SENTINEL = -40;
                 static const int OFFSET = 40; 
                 static const int TABLE_PTR = 24;
                 static const int DESTINATION = 128;
@@ -406,6 +391,43 @@ spec("CPU") {
                     int cycles = cpu_run(cpu, 10);
                     check(cycles == 5);
                 }
+            }
+        }
+
+        describe("LDX") {
+            describe("IMM") {
+
+
+                before_each() {
+                    cpu->memory.data[0] = LDX_IMM;
+                }
+
+                it("should load the next byte of memory into the x register") {
+                    cpu->memory.data[1] = POS_SENTINEL;
+                    cpu_run(cpu, 1);
+                    check(cpu->idx_reg_x == POS_SENTINEL);
+                }
+
+                it("should set flags correctly for positive imm value") {
+                    cpu->memory.data[1] = POS_SENTINEL;
+                    NZ_FLAGS_CHECK(POS_SENTINEL);
+                }
+
+                it("should set flags correctly for negative imm value") {
+                    cpu->memory.data[1] = NEG_SENTINEL;
+                    NZ_FLAGS_CHECK(NEG_SENTINEL);
+                }
+
+                it("should set flags correctly for zero imm value") {
+                    cpu->memory.data[1] = 0;
+                    NZ_FLAGS_CHECK(0);
+                }
+
+                it("should take two cpu cycles to run") {
+                    int cycles = cpu_run(cpu, 10);
+                    check(cycles == 2);
+                }
+
             }
         }
     }
