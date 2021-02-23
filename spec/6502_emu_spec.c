@@ -299,7 +299,7 @@ spec("CPU") {
                     cpu->idx_reg_y = OFFSET;
                 }
 
-                it("should load the value at the specified address and (x) offset into accumulator") {
+                it("should load the value at the specified address and (y) offset into accumulator") {
                     cpu->memory.data[DESTINATION] = POS_SENTINEL;
                     cpu_run(cpu, 1);
                     check(cpu->accumulator == POS_SENTINEL);
@@ -364,6 +364,47 @@ spec("CPU") {
                 it("should take six cpu cycles to run") {
                     int cycles = cpu_run(cpu, 10);
                     check(cycles == 6);
+                }
+            }
+
+            describe("IND, Y") {
+                static const int POS_SENTINEL = 40;
+                static const int NEG_SENTINEL = -40;
+                static const int OFFSET = 40; 
+                static const int TABLE_PTR = 24;
+                static const int DESTINATION = 128;
+
+                before_each() {
+                    cpu->memory.data[0] = LDA_IND_Y;
+                    cpu->memory.data[1] = TABLE_PTR;
+                    cpu->memory.data[TABLE_PTR] = DESTINATION - OFFSET;
+                    cpu->idx_reg_y = OFFSET;
+                }
+
+                it("should load the value at the specified indirect address into accumulator") {
+                    cpu->memory.data[DESTINATION] = POS_SENTINEL;
+                    cpu_run(cpu, 1);
+                    check(cpu->accumulator == POS_SENTINEL);
+                }
+
+                it("should set flags correctly for positive sentinel") {
+                    cpu->memory.data[DESTINATION] = POS_SENTINEL;
+                    NZ_FLAGS_CHECK(POS_SENTINEL);
+                }
+
+                it("should set flags correctly for zero sentinel") {
+                    cpu->memory.data[DESTINATION] = 0;
+                    NZ_FLAGS_CHECK(0);
+                }
+
+                it("should set flags correctly for negative sentinel") {
+                    cpu->memory.data[DESTINATION] = NEG_SENTINEL;
+                    NZ_FLAGS_CHECK(NEG_SENTINEL);
+                }
+
+                it("should take six cpu cycles to run") {
+                    int cycles = cpu_run(cpu, 10);
+                    check(cycles == 5);
                 }
             }
         }
