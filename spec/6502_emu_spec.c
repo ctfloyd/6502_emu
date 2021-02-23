@@ -38,7 +38,7 @@
     it("should set flags correctly for negative imm value") {   \
         cpu->memory.data[dest] = NEG_SENTINEL;                  \
         NZ_FLAGS_CHECK(NEG_SENTINEL);                           \
-    }                                                           \    
+    }                                                           \
                                                                 \
     it("should set flags correctly for zero imm value") {       \
         cpu->memory.data[dest] = 0;                             \
