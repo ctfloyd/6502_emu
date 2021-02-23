@@ -325,6 +325,47 @@ spec("CPU") {
                     check(cycles == 4);
                 }
             }
+
+            describe("IND, X") {
+                static int POS_SENTINEL = 40;
+                static int NEG_SENTINEL = -40;
+                static int OFFSET = 40; 
+                static int DESTINATION = 128;
+                static int TABLE_PTR = 24;
+
+                before_each() {
+                    cpu->memory.data[0] = LDA_IND_X;
+                    cpu->memory.data[1] = TABLE_PTR;
+                    cpu->idx_reg_x = OFFSET;
+                    cpu->memory.data[TABLE_PTR + OFFSET] = DESTINATION;
+                }
+
+                it("should load the value at the specified indirect address into accumulator") {
+                    cpu->memory.data[DESTINATION] = POS_SENTINEL;
+                    cpu_run(cpu, 1);
+                    check(cpu->accumulator == POS_SENTINEL);
+                }
+
+                it("should set flags correctly for positive sentinel") {
+                    cpu->memory.data[DESTINATION] = POS_SENTINEL;
+                    NZ_FLAGS_CHECK(POS_SENTINEL);
+                }
+
+                it("should set flags correctly for zero sentinel") {
+                    cpu->memory.data[DESTINATION] = 0;
+                    NZ_FLAGS_CHECK(0);
+                }
+
+                it("should set flags correctly for negative sentinel") {
+                    cpu->memory.data[DESTINATION] = NEG_SENTINEL;
+                    NZ_FLAGS_CHECK(NEG_SENTINEL);
+                }
+
+                it("should take six cpu cycles to run") {
+                    int cycles = cpu_run(cpu, 10);
+                    check(cycles == 6);
+                }
+            }
         }
     }
 }

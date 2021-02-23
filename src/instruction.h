@@ -11,7 +11,8 @@ enum Instruction {
     LDA_ZERO_X = 0xB5,
     LDA_ABS = 0xAD,
     LDA_ABS_X = 0xBD,
-    LDA_ABS_Y = 0xB9
+    LDA_ABS_Y = 0xB9,
+    LDA_IND_X = 0xA1
 };
 
 static inline Byte load_zero_page_value(CPU* cpu, Byte offset) {
@@ -24,6 +25,13 @@ static inline Byte load_zero_page_value(CPU* cpu, Byte offset) {
 static inline Byte load_absolute_value(CPU* cpu, Byte offset) {
     Word base_addr = cpu_load_next_word(cpu);
     Word effective_addr = base_addr + offset;
+    return cpu->memory.data[effective_addr];
+}
+
+static inline Byte load_indirect_index(CPU* cpu, Byte offset) {
+    Byte begin_byte = cpu_load_next_byte(cpu);
+    Byte indirect_addr = begin_byte + offset;
+    Byte effective_addr = cpu->memory.data[indirect_addr];
     return cpu->memory.data[effective_addr];
 }
 
@@ -70,6 +78,13 @@ static inline int lda_absolute_y(CPU* cpu) {
     cpu->accumulator = accumulator_byte;
     flags_set_nz(&cpu->flags, accumulator_byte);
     return 4;
+}
+
+static inline int lda_indirect_x(CPU* cpu) {
+    Byte accumulator_byte = load_indirect_index(cpu, cpu->idx_reg_x);
+    cpu->accumulator = accumulator_byte;
+    flags_set_nz(&cpu->flags, accumulator_byte);
+    return 6;
 }
 
 #endif
