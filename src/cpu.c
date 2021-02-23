@@ -98,6 +98,7 @@ int cpu_run(CPU* cpu, int cycles) {
 			case LDA_IND_X: CYCLE_COUNT(lda_indirect_x(cpu));
 			case LDA_IND_Y: CYCLE_COUNT(lda_indirect_y(cpu));
 			case LDX_IMM: CYCLE_COUNT(ldx_imm(cpu));
+			case LDX_ZERO: CYCLE_COUNT(ldx_zero(cpu));
 			default:
 				cycles--;
         }

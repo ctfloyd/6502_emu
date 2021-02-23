@@ -289,7 +289,6 @@ spec("CPU") {
         describe("LDX") {
             describe("IMM") {
 
-
                 before_each() {
                     cpu->memory.data[0] = LDX_IMM;
                 }
@@ -306,6 +305,26 @@ spec("CPU") {
                 }
 
                 NZ_AUTO_FLAGS_CHECK(1);
+            }
+
+            describe("ZERO") {
+                before_each() {
+                    cpu->memory.data[0] = LDX_ZERO;
+                    cpu->memory.data[1] = 32;
+                }
+
+                it("should load the value at specified address into x register") {
+                    cpu->memory.data[32] = POS_SENTINEL;
+                    cpu_run(cpu, 1);
+                    check(cpu->idx_reg_x == POS_SENTINEL);
+                }
+
+                it("should take three cpu cycles to run") {
+                    int cycles = cpu_run(cpu, 10);
+                    check(cycles == 3);
+                }
+
+                NZ_AUTO_FLAGS_CHECK(32);
             }
         }
     }
