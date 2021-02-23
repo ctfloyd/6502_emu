@@ -4,7 +4,7 @@
 #include "stdbool.h"
 #include <stdio.h>
 
-#define NZ_FLAGS_CHECK(val) {                      \
+#define NZ_FLAGS_CHECK(val) {                       \
     if (val > 0) {                                  \
         cpu->flags.zero = true;                     \
         cpu->flags.negative = true;                 \
@@ -28,6 +28,24 @@
         check(cpu->flags.negative == false);        \
     } \
 }
+
+#define NZ_AUTO_FLAGS_CHECK(dest) {                             \
+     it("should set flags correctly for positive imm value") {  \
+        cpu->memory.data[dest] = POS_SENTINEL;                  \
+        NZ_FLAGS_CHECK(POS_SENTINEL);                           \
+    }                                                           \
+                                                                \
+    it("should set flags correctly for negative imm value") {   \
+        cpu->memory.data[dest] = NEG_SENTINEL;                  \
+        NZ_FLAGS_CHECK(NEG_SENTINEL);                           \
+    }                                                           \    
+                                                                \
+    it("should set flags correctly for zero imm value") {       \
+        cpu->memory.data[dest] = 0;                             \
+        NZ_FLAGS_CHECK(0);                                      \
+    }                                                           \
+}
+
 
 spec("CPU") {
 
@@ -95,25 +113,12 @@ spec("CPU") {
                     check(cpu->accumulator == POS_SENTINEL);
                 }
 
-                it("should set flags correctly for positive imm value") {
-                    cpu->memory.data[1] = POS_SENTINEL;
-                    NZ_FLAGS_CHECK(POS_SENTINEL);
-                }
-
-                it("should set flags correctly for negative imm value") {
-                    cpu->memory.data[1] = NEG_SENTINEL;
-                    NZ_FLAGS_CHECK(NEG_SENTINEL);
-                }
-
-                it("should set flags correctly for zero imm value") {
-                    cpu->memory.data[1] = 0;
-                    NZ_FLAGS_CHECK(0);
-                }
-
                 it("should take two cpu cycles to run") {
                     int cycles = cpu_run(cpu, 10);
                     check(cycles == 2);
                 }
+
+                NZ_AUTO_FLAGS_CHECK(1);
             }
 
             describe("ZERO") {
@@ -128,25 +133,12 @@ spec("CPU") {
                     check(cpu->accumulator == POS_SENTINEL);
                 }
 
-                it("should set flags correctly for positive sentinel") {
-                    cpu->memory.data[32] = POS_SENTINEL;
-                    NZ_FLAGS_CHECK(POS_SENTINEL);
-                }
-
-                it("should set flags correctly for zero sentinel") {
-                    cpu->memory.data[32] = 0;
-                    NZ_FLAGS_CHECK(0);
-                }
-
-                it("should set flags correctly for negative sentinel") {
-                    cpu->memory.data[32] = NEG_SENTINEL;
-                    NZ_FLAGS_CHECK(NEG_SENTINEL);
-                }
-
                 it("should take three cpu cycles to run") {
                     int cycles = cpu_run(cpu, 10);
                     check(cycles == 3);
                 }
+
+                NZ_AUTO_FLAGS_CHECK(32);
             }
 
             describe("ZERO, X") {
@@ -164,35 +156,12 @@ spec("CPU") {
                     check(cpu->accumulator == POS_SENTINEL);
                 }
 
-                it("should set flags correctly for positive sentinel") {
-                    cpu->memory.data[DESTINATION] = POS_SENTINEL;
-                    NZ_FLAGS_CHECK(POS_SENTINEL);
-                }
-
-                it("should set flags correctly for zero sentinel") {
-                    cpu->memory.data[DESTINATION] = 0;
-                    NZ_FLAGS_CHECK(0);
-                }
-
-                it("should set flags correctly for negative sentinel") {
-                    cpu->memory.data[DESTINATION] = NEG_SENTINEL;
-                    NZ_FLAGS_CHECK(NEG_SENTINEL);
-                }
-
-                it("should wrap around the page boundary") {
-                    int FAR_OFFSET = 200;
-                    int PAGE_SIZE = 0xFF;
-                    cpu->memory.data[1] = FAR_OFFSET;
-                    cpu->idx_reg_x = PAGE_SIZE - FAR_OFFSET + DESTINATION + 1;
-                    cpu->memory.data[DESTINATION] = NEG_SENTINEL;
-                    cpu_run(cpu, 1);
-                    check((s8)(cpu->accumulator) == NEG_SENTINEL);
-                }
-
                 it("should take four cpu cycles to run") {
                     int cycles = cpu_run(cpu, 10);
                     check(cycles == 4);
                 }
+            
+                NZ_AUTO_FLAGS_CHECK(DESTINATION);
             }
 
             describe("ABS") {
@@ -206,31 +175,12 @@ spec("CPU") {
                     cpu->memory.data[2] = 0x04;
                 }
 
-                it("should load the value at the specified address into accumulator") {
-                    cpu->memory.data[DESTINATION] = POS_SENTINEL;
-                    cpu_run(cpu, 1);
-                    check(cpu->accumulator == POS_SENTINEL);
-                }
-
-                it("should set flags correctly for positive sentinel") {
-                    cpu->memory.data[DESTINATION] = POS_SENTINEL;
-                    NZ_FLAGS_CHECK(POS_SENTINEL);
-                }
-
-                it("should set flags correctly for zero sentinel") {
-                    cpu->memory.data[DESTINATION] = 0;
-                    NZ_FLAGS_CHECK(0);
-                }
-
-                it("should set flags correctly for negative sentinel") {
-                    cpu->memory.data[DESTINATION] = NEG_SENTINEL;
-                    NZ_FLAGS_CHECK(NEG_SENTINEL);
-                }
-
                 it("should take four cpu cycles to run") {
                     int cycles = cpu_run(cpu, 10);
                     check(cycles == 4);
                 }
+
+                NZ_AUTO_FLAGS_CHECK(DESTINATION);
             }
 
             describe("ABS, X") {
@@ -247,31 +197,12 @@ spec("CPU") {
                     cpu->idx_reg_x = OFFSET;
                 }
 
-                it("should load the value at the specified address and (x) offset into accumulator") {
-                    cpu->memory.data[DESTINATION] = POS_SENTINEL;
-                    cpu_run(cpu, 1);
-                    check(cpu->accumulator == POS_SENTINEL);
-                }
-
-                it("should set flags correctly for positive sentinel") {
-                    cpu->memory.data[DESTINATION] = POS_SENTINEL;
-                    NZ_FLAGS_CHECK(POS_SENTINEL);
-                }
-
-                it("should set flags correctly for zero sentinel") {
-                    cpu->memory.data[DESTINATION] = 0;
-                    NZ_FLAGS_CHECK(0);
-                }
-
-                it("should set flags correctly for negative sentinel") {
-                    cpu->memory.data[DESTINATION] = NEG_SENTINEL;
-                    NZ_FLAGS_CHECK(NEG_SENTINEL);
-                }
-
                 it("should take four cpu cycles to run") {
                     int cycles = cpu_run(cpu, 10);
                     check(cycles == 4);
                 }
+
+                NZ_AUTO_FLAGS_CHECK(DESTINATION);
             }
 
             describe("ABS, Y") {
@@ -294,25 +225,12 @@ spec("CPU") {
                     check(cpu->accumulator == POS_SENTINEL);
                 }
 
-                it("should set flags correctly for positive sentinel") {
-                    cpu->memory.data[DESTINATION] = POS_SENTINEL;
-                    NZ_FLAGS_CHECK(POS_SENTINEL);
-                }
-
-                it("should set flags correctly for zero sentinel") {
-                    cpu->memory.data[DESTINATION] = 0;
-                    NZ_FLAGS_CHECK(0);
-                }
-
-                it("should set flags correctly for negative sentinel") {
-                    cpu->memory.data[DESTINATION] = NEG_SENTINEL;
-                    NZ_FLAGS_CHECK(NEG_SENTINEL);
-                }
-
                 it("should take four cpu cycles to run") {
                     int cycles = cpu_run(cpu, 10);
                     check(cycles == 4);
                 }
+
+                NZ_AUTO_FLAGS_CHECK(DESTINATION);
             }
 
             describe("IND, X") {
@@ -333,25 +251,12 @@ spec("CPU") {
                     check(cpu->accumulator == POS_SENTINEL);
                 }
 
-                it("should set flags correctly for positive sentinel") {
-                    cpu->memory.data[DESTINATION] = POS_SENTINEL;
-                    NZ_FLAGS_CHECK(POS_SENTINEL);
-                }
-
-                it("should set flags correctly for zero sentinel") {
-                    cpu->memory.data[DESTINATION] = 0;
-                    NZ_FLAGS_CHECK(0);
-                }
-
-                it("should set flags correctly for negative sentinel") {
-                    cpu->memory.data[DESTINATION] = NEG_SENTINEL;
-                    NZ_FLAGS_CHECK(NEG_SENTINEL);
-                }
-
                 it("should take six cpu cycles to run") {
                     int cycles = cpu_run(cpu, 10);
                     check(cycles == 6);
                 }
+
+                NZ_AUTO_FLAGS_CHECK(DESTINATION);
             }
 
             describe("IND, Y") {
@@ -372,25 +277,12 @@ spec("CPU") {
                     check(cpu->accumulator == POS_SENTINEL);
                 }
 
-                it("should set flags correctly for positive sentinel") {
-                    cpu->memory.data[DESTINATION] = POS_SENTINEL;
-                    NZ_FLAGS_CHECK(POS_SENTINEL);
-                }
-
-                it("should set flags correctly for zero sentinel") {
-                    cpu->memory.data[DESTINATION] = 0;
-                    NZ_FLAGS_CHECK(0);
-                }
-
-                it("should set flags correctly for negative sentinel") {
-                    cpu->memory.data[DESTINATION] = NEG_SENTINEL;
-                    NZ_FLAGS_CHECK(NEG_SENTINEL);
-                }
-
                 it("should take six cpu cycles to run") {
                     int cycles = cpu_run(cpu, 10);
                     check(cycles == 5);
                 }
+
+                NZ_AUTO_FLAGS_CHECK(DESTINATION);
             }
         }
 
@@ -408,26 +300,12 @@ spec("CPU") {
                     check(cpu->idx_reg_x == POS_SENTINEL);
                 }
 
-                it("should set flags correctly for positive imm value") {
-                    cpu->memory.data[1] = POS_SENTINEL;
-                    NZ_FLAGS_CHECK(POS_SENTINEL);
-                }
-
-                it("should set flags correctly for negative imm value") {
-                    cpu->memory.data[1] = NEG_SENTINEL;
-                    NZ_FLAGS_CHECK(NEG_SENTINEL);
-                }
-
-                it("should set flags correctly for zero imm value") {
-                    cpu->memory.data[1] = 0;
-                    NZ_FLAGS_CHECK(0);
-                }
-
                 it("should take two cpu cycles to run") {
                     int cycles = cpu_run(cpu, 10);
                     check(cycles == 2);
                 }
 
+                NZ_AUTO_FLAGS_CHECK(1);
             }
         }
     }
