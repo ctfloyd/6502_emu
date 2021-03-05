@@ -23,7 +23,8 @@ enum Instruction {
     LDX_IMM = 0xA2,
     LDX_ZERO = 0xA6,
     LDX_ZERO_Y = 0xB6,
-    LDX_ABS = 0xAE
+    LDX_ABS = 0xAE,
+    LDX_ABS_Y = 0xBE
 };
 
 static inline Byte load_zero_page_value(CPU* cpu, Byte offset) {
@@ -143,6 +144,15 @@ static inline int ldx_zero_y(CPU* cpu) {
 
 static inline int ldx_abs(CPU* cpu) {
     Byte x_byte = load_absolute_value(cpu, 0);
+    cpu->idx_reg_x = x_byte;
+    flags_set_nz(&cpu->flags, x_byte);
+    return 4;
+}
+
+
+/* TODO (ctfloyd): Increase cycle count by one if page boundary is crossed */
+static inline int ldx_abs_y(CPU* cpu) {
+    Byte x_byte = load_absolute_value(cpu, cpu->idx_reg_y);
     cpu->idx_reg_x = x_byte;
     flags_set_nz(&cpu->flags, x_byte);
     return 4;

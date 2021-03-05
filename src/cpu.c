@@ -101,6 +101,7 @@ int cpu_run(CPU* cpu, int cycles) {
 			case LDX_ZERO: CYCLE_COUNT(ldx_zero(cpu));
 			case LDX_ZERO_Y: CYCLE_COUNT(ldx_zero_y(cpu));
 			case LDX_ABS: CYCLE_COUNT(ldx_abs(cpu));
+			case LDX_ABS_Y: CYCLE_COUNT(ldx_abs_y(cpu));
 			default:
 				cycles--;
         }

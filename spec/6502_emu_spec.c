@@ -373,6 +373,33 @@ spec("CPU") {
 
                 NZ_AUTO_FLAGS_CHECK(DESTINATION);
             }
+
+            describe("ABS, Y") {
+                static int DESTINATION = 2048;
+                static u8 OFFSET = 32;
+
+                before_each() {
+                    cpu->memory.data[0] = LDX_ABS_Y;
+
+                    cpu->memory.data[1] = DESTINATION;
+                    cpu->memory.data[2] = DESTINATION >> 8;
+
+                    cpu->idx_reg_y = OFFSET;
+                }
+
+                it("should load the value at the specified address and offset into x") {
+                    cpu->memory.data[DESTINATION + OFFSET] = POS_SENTINEL;
+                    cpu_run(cpu, 1);
+                    check(cpu->idx_reg_x == POS_SENTINEL);
+                }
+
+                it("should take four cpu cycles to run") {
+                    int cycles = cpu_run(cpu, 10);
+                    check(cycles == 4);
+                }
+
+                NZ_AUTO_FLAGS_CHECK(DESTINATION + OFFSET);
+            }
         }
     }
 }
