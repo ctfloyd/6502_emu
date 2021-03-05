@@ -401,5 +401,121 @@ spec("CPU") {
                 NZ_AUTO_FLAGS_CHECK(DESTINATION + OFFSET);
             }
         }
+
+        describe("LDY") {
+            describe("IMM") {
+
+                before_each() {
+                    cpu->memory.data[0] = LDY_IMM;
+                }
+
+                it("should load the next byte of memory into the y register") {
+                    cpu->memory.data[1] = POS_SENTINEL;
+                    cpu_run(cpu, 1);
+                    check(cpu->idx_reg_y == POS_SENTINEL);
+                }
+
+                it("should take two cpu cycles to run") {
+                    int cycles = cpu_run(cpu, 10);
+                    check(cycles == 2);
+                }
+
+                NZ_AUTO_FLAGS_CHECK(1);
+            }
+
+            describe("ZERO") {
+                before_each() {
+                    cpu->memory.data[0] = LDY_ZERO;
+                    cpu->memory.data[1] = 32;
+                }
+
+                it("should load the value at specified address into y register") {
+                    cpu->memory.data[32] = POS_SENTINEL;
+                    cpu_run(cpu, 1);
+                    check(cpu->idx_reg_y == POS_SENTINEL);
+                }
+
+                it("should take three cpu cycles to run") {
+                    int cycles = cpu_run(cpu, 10);
+                    check(cycles == 3);
+                }
+
+                NZ_AUTO_FLAGS_CHECK(32);
+            }
+
+            describe("ZERO, X") {
+                static int DESTINATION = 128;
+
+                before_each() {
+                    cpu->memory.data[0] = LDY_ZERO_X;
+                    cpu->memory.data[1] = 96;
+                    cpu->idx_reg_x = 32;
+                }
+
+                it("should load the value at the specified address and (x) offset into y") {
+                    cpu->memory.data[DESTINATION] = POS_SENTINEL;
+                    cpu_run(cpu, 1);
+                    check(cpu->idx_reg_y == POS_SENTINEL);
+                }
+
+                it("should take four cpu cycles to run") {
+                    int cycles = cpu_run(cpu, 10);
+                    check(cycles == 4);
+                }
+            
+                NZ_AUTO_FLAGS_CHECK(DESTINATION);
+            }
+
+            describe("ABS") {
+                static int DESTINATION = 2048;
+
+                before_each() {
+                    cpu->memory.data[0] = LDY_ABS;
+
+                    cpu->memory.data[1] = DESTINATION;
+                    cpu->memory.data[2] = DESTINATION >> 8;
+                }
+                
+                it("should load the value at the specified address into y") {
+                    cpu->memory.data[DESTINATION] = POS_SENTINEL;
+                    cpu_run(cpu, 1);
+                    check(cpu->idx_reg_y == POS_SENTINEL);
+                }
+
+                it("should take four cpu cycles to run") {
+                    int cycles = cpu_run(cpu, 10);
+                    check(cycles == 4);
+                }
+
+                NZ_AUTO_FLAGS_CHECK(DESTINATION);
+            }
+
+            describe("ABS, X") {
+                static int DESTINATION = 2048;
+                static u8 OFFSET = 32;
+
+                before_each() {
+                    cpu->memory.data[0] = LDY_ABS_X;
+
+                    cpu->memory.data[1] = DESTINATION;
+                    cpu->memory.data[2] = DESTINATION >> 8;
+
+                    cpu->idx_reg_x = OFFSET;
+                }
+
+                it("should load the value at the specified address and offset into x") {
+                    cpu->memory.data[DESTINATION + OFFSET] = POS_SENTINEL;
+                    cpu_run(cpu, 1);
+                    check(cpu->idx_reg_y == POS_SENTINEL);
+                }
+
+                it("should take four cpu cycles to run") {
+                    int cycles = cpu_run(cpu, 10);
+                    check(cycles == 4);
+                }
+
+                NZ_AUTO_FLAGS_CHECK(DESTINATION + OFFSET);
+            }
+        }
     }
 }

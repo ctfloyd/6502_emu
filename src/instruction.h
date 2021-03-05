@@ -24,7 +24,12 @@ enum Instruction {
     LDX_ZERO = 0xA6,
     LDX_ZERO_Y = 0xB6,
     LDX_ABS = 0xAE,
-    LDX_ABS_Y = 0xBE
+    LDX_ABS_Y = 0xBE,
+    LDY_IMM = 0xA0,
+    LDY_ZERO = 0xA4,
+    LDY_ZERO_X = 0xB4,
+    LDY_ABS = 0xAC,
+    LDY_ABS_X = 0xBC
 };
 
 static inline Byte load_zero_page_value(CPU* cpu, Byte offset) {
@@ -155,6 +160,43 @@ static inline int ldx_abs_y(CPU* cpu) {
     Byte x_byte = load_absolute_value(cpu, cpu->idx_reg_y);
     cpu->idx_reg_x = x_byte;
     flags_set_nz(&cpu->flags, x_byte);
+    return 4;
+}
+
+static inline int ldy_imm(CPU* cpu) {
+    Byte y_byte = cpu_load_next_byte(cpu);
+    cpu->idx_reg_y = y_byte;
+    flags_set_nz(&cpu->flags, y_byte);
+    return 2;
+}
+
+static inline int ldy_zero(CPU* cpu) {
+    Byte y_byte = load_zero_page_value(cpu, 0);
+    cpu->idx_reg_y = y_byte;
+    flags_set_nz(&cpu->flags, y_byte);
+    return 3;
+}
+
+static inline int ldy_zero_x(CPU* cpu) {
+    Byte y_byte = load_zero_page_value(cpu, cpu->idx_reg_x);
+    cpu->idx_reg_y = y_byte;
+    flags_set_nz(&cpu->flags, y_byte);
+    return 4;
+}
+
+static inline int ldy_abs(CPU* cpu) {
+    Byte y_byte = load_absolute_value(cpu, 0);
+    cpu->idx_reg_y = y_byte;
+    flags_set_nz(&cpu->flags, y_byte);
+    return 4;
+}
+
+
+/* TODO (ctfloyd): Increase cycle count by one if page boundary is crossed */
+static inline int ldy_abs_x(CPU* cpu) {
+    Byte y_byte = load_absolute_value(cpu, cpu->idx_reg_x);
+    cpu->idx_reg_y = y_byte;
+    flags_set_nz(&cpu->flags, y_byte);
     return 4;
 }
 
