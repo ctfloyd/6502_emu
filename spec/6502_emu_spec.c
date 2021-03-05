@@ -336,7 +336,7 @@ spec("CPU") {
                     cpu->idx_reg_y = 32;
                 }
 
-                it("should load the value at the specified address and (y) offset into accumulator") {
+                it("should load the value at the specified address and (y) offset into x") {
                     cpu->memory.data[DESTINATION] = POS_SENTINEL;
                     cpu_run(cpu, 1);
                     check(cpu->idx_reg_x == POS_SENTINEL);
@@ -347,6 +347,30 @@ spec("CPU") {
                     check(cycles == 4);
                 }
             
+                NZ_AUTO_FLAGS_CHECK(DESTINATION);
+            }
+
+            describe("ABS") {
+                static int DESTINATION = 2048;
+
+                before_each() {
+                    cpu->memory.data[0] = LDX_ABS;
+
+                    cpu->memory.data[1] = DESTINATION;
+                    cpu->memory.data[2] = DESTINATION >> 8;
+                }
+                
+                it("should load the value at the specified address into x") {
+                    cpu->memory.data[DESTINATION] = POS_SENTINEL;
+                    cpu_run(cpu, 1);
+                    check(cpu->idx_reg_x == POS_SENTINEL);
+                }
+
+                it("should take four cpu cycles to run") {
+                    int cycles = cpu_run(cpu, 10);
+                    check(cycles == 4);
+                }
+
                 NZ_AUTO_FLAGS_CHECK(DESTINATION);
             }
         }
